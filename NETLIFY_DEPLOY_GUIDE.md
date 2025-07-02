@@ -1,3 +1,0 @@
-## Netlify Guide
-
-Follow steps to deploy...
