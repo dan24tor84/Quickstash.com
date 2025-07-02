@@ -1,8 +1,0 @@
-Quickstash.com/
-├── frontend/
-│   ├── package.json
-│   └── .env.production
-├── backend/
-│   ├── Procfile
-│   └── railway.toml
-├── netlify.toml
