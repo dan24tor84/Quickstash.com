@@ -1,21 +1,9 @@
 Quickstash.com/
 ├── frontend/
 │   ├── package.json
+│   ├── src/
 │   ├── public/
-│   └── src/
+│   └── any other frontend files
 ├── backend/
-│   ├── server.js (or app.js)
-│   └── any APIs or config
-└── netlify.toml
-[build]
-base = "frontend"
-publish = "build"
-command = "npm install && npm run build"
-
-[build.environment]
-NODE_VERSION = "18"
-
-[[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
+│   └── (optional API files for Railway)
+├── netlify.toml
