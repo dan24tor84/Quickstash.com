@@ -1,5 +1,8 @@
 Quickstash.com/
-├── frontend/
+├── frontend/{
+  "name": "quickstash",
+  "version": "1.0.0"
+}
 │   ├── package.json
 │   ├── src/
 │   ├── public/
