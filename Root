@@ -1,10 +1,9 @@
 Quickstash.com/
-├── frontend/             
+├── frontend/
 │   ├── package.json
-│   └── .env.production
+│   └── src/
 ├── backend/
-│   └── (files...)
-├── netlify.toml          
+└── netlify.toml 
 [build]
   base = "frontend"
   publish = "build"
