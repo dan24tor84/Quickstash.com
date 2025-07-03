@@ -4,5 +4,5 @@ Quickstash.com/
 │   ├── public/
 │   ├── package.json
 ├── backend/
-│   ├── server.js (or similar)
+│   ├── server.js 
 ├── netlify.toml
