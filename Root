@@ -1,7 +1,7 @@
 Quickstash.com/
-├── frontend/              ✅ REQUIRED
+├── frontend/             
 │   ├── package.json
 │   └── .env.production
 ├── backend/
 │   └── (files...)
-├── netlify.toml           ✅ REQUIRED
+├── netlify.toml          
