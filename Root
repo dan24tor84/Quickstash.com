@@ -1,10 +1,10 @@
 Quickstash.com/
 ├── frontend/
 │   ├── package.json
-│   └── src/
+│   ├── src/
+│   └── .env.production
 ├── backend/
-└── netlify.toml 
-[build]
+├── netlify.toml
   base = "frontend"
   publish = "build"
   command = "npm install && npm run build"
