@@ -1,0 +1,8 @@
+Quickstash.com/
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+├── backend/
+│   ├── server.js (or similar)
+├── netlify.toml
