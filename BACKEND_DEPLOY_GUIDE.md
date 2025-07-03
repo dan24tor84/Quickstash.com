@@ -1,3 +1,0 @@
-## Backend Guide
-
-Set up on Railway...
