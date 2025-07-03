@@ -1,1 +1,0 @@
-# 🎉 QuickStash - Ready for Netlify Deployment!
