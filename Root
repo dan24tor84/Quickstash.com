@@ -1,11 +1,12 @@
 Quickstash.com/
 ├── frontend/
-│   ├── src/
-│   ├── public/
 │   ├── package.json
+│   ├── public/
+│   └── src/
 ├── backend/
-│   ├── server.js 
-├── netlify.toml
+│   ├── server.js (or app.js)
+│   └── any APIs or config
+└── netlify.toml
 [build]
 base = "frontend"
 publish = "build"
