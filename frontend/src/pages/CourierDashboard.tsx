@@ -24,7 +24,7 @@ export default function CourierDashboard() {
   }, []);
 
   const updateStatus = async (deliveryId: number, newStatus: string) => {
-    await axios.post('/api/couriers/update-status', { deliveryId, newStatus });
+    await axios.post(`/api/admin/vendors/${id}/approve`);
     alert(`Delivery ${deliveryId} marked as ${newStatus}`);
   };
 
