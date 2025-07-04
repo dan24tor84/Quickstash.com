@@ -1,25 +1,33 @@
 const express = require('express');
-const app = express();
-const path = require('path');
+const router = express.Router();
 
-app.use(express.json());
+// In-memory vendor list (temporary — replace with DB later)
+let vendors = [];
 
-// Import API routes
-const vendorRoutes = require('./backend/routes/vendors');
-const courierRoutes = require('./backend/routes/couriers');
-const adminRoutes = require('./backend/routes/admin'); // <— Once you create it
+// Register a new vendor
+router.post('/register', (req, res) => {
+  const { name, email, password } = req.body;
 
-// Register API routes
-app.use('/api/vendors', vendorRoutes);
-app.use('/api/couriers', courierRoutes);
-app.use('/api/admin', adminRoutes);
+  // Basic validation
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
 
-// Serve frontend
-app.use(express.static(path.join(__dirname, 'frontend', 'dist')));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
+  const vendor = {
+    id: vendors.length + 1,
+    name,
+    email,
+    password, // Note: hash this in production!
+  };
+
+  vendors.push(vendor);
+
+  res.status(201).json({ message: 'Vendor registered successfully', vendor });
 });
 
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Get list of registered vendors
+router.get('/list', (req, res) => {
+  res.json(vendors);
+});
+
+module.exports = router;
