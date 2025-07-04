@@ -1,41 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('cloudinary').v2;
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+let products = []; // In-memory store for now
+
+// POST /api/products - Add a new product
+router.post('/', (req, res) => {
+  const { name, description, category, price, image } = req.body;
+  const newProduct = {
+    id: products.length + 1,
+    name,
+    description,
+    category,
+    price,
+    image
+  };
+  products.push(newProduct);
+  res.status(201).json({ message: 'Product added', product: newProduct });
 });
 
-// Multer + Cloudinary Storage
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'QuickStash',
-    allowed_formats: ['jpg', 'png'],
-  },
-});
-
-const upload = multer({ storage });
-
-let uploadedProducts = [];
-
-router.post('/upload', upload.single('image'), (req, res) => {
-  const { name, description } = req.body;
-  const imageUrl = req.file.path;
-
-  const product = { id: Date.now(), name, description, imageUrl };
-  uploadedProducts.push(product);
-
-  res.json({ message: 'Product uploaded successfully', product });
-});
-
+// GET /api/products - List all products
 router.get('/', (req, res) => {
-  res.json(uploadedProducts);
+  res.json(products);
 });
 
 module.exports = router;
