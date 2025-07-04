@@ -1,11 +1,52 @@
-// FILE: frontend/src/pages/AdminOrdersDashboard.tsx import React, { useEffect, useState } from 'react'; import axios from 'axios';
+// FILE: frontend/src/pages/AdminOrderDashboard.tsx
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
-export default function AdminOrdersDashboard() { const [orders, setOrders] = useState([]);
+export default function AdminOrderDashboard() {
+  const [orders, setOrders] = useState([]);
 
-useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
-const fetchOrders = async () => { const res = await axios.get('/api/admin/orders'); setOrders(res.data); };
+  const fetchOrders = async () => {
+    const res = await axios.get('/api/admin/orders');
+    setOrders(res.data);
+  };
 
-const updateStatus = async (orderId, newStatus) => { await axios.post(/api/admin/orders/${orderId}/status, { status: newStatus }); fetchOrders(); };
+  const markAsDelivered = async (id: number) => {
+    await axios.post(`/api/admin/orders/${id}/deliver`);
+    fetchOrders();
+  };
 
-return ( <div className="p-4"> <h1 className="text-2xl font-bold mb-4">Admin Order Management</h1> {orders.length === 0 ? ( <p>No orders available.</p> ) : ( <ul className="space-y-4"> {orders.map((order) => ( <li key={order.id} className="border p-4 rounded"> <p><strong>Name:</strong> {order.name}</p> <p><strong>Product:</strong> {order.product} (x{order.quantity})</p> <p><strong>Address:</strong> {order.address}</p> <p><strong>Status:</strong> {order.status}</p> <div className="mt-2 space-x-2"> {order.status !== 'delivered' && ( <> <button onClick={() => updateStatus(order.id, 'preparing')} className="bg-yellow-500 text-white px-3 py-1 rounded" > Preparing </button> <button onClick={() => updateStatus(order.id, 'out for delivery')} className="bg-blue-600 text-white px-3 py-1 rounded" > Out for Delivery </button> <button onClick={() => updateStatus(order.id, 'delivered')} className="bg-green-600 text-white px-3 py-1 rounded" > Mark Delivered </button> </> )} </div> </li> ))} </ul> )} </div> ); }
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Admin Order Dashboard</h1>
+      {orders.length === 0 ? (
+        <p>No orders found.</p>
+      ) : (
+        <ul className="space-y-4">
+          {orders.map((order: any) => (
+            <li key={order.id} className="border p-4 rounded">
+              <p><strong>Customer:</strong> {order.name}</p>
+              <p><strong>Phone:</strong> {order.phone}</p>
+              <p><strong>Address:</strong> {order.address}</p>
+              <p><strong>Product:</strong> {order.product}</p>
+              <p><strong>Quantity:</strong> {order.quantity}</p>
+              <p><strong>Delivery Time:</strong> {order.deliveryTime}</p>
+              <p><strong>Status:</strong> {order.delivered ? 'Delivered' : 'Pending'}</p>
+              {!order.delivered && (
+                <button
+                  onClick={() => markAsDelivered(order.id)}
+                  className="mt-2 bg-green-700 text-white px-4 py-2 rounded"
+                >
+                  Mark as Delivered
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
