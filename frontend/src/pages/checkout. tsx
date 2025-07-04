@@ -1,0 +1,11 @@
+// FILE: frontend/src/pages/Checkout.tsx
+
+import React from 'react'; import axios from 'axios';
+
+export default function Checkout() { const handleCheckout = async () => { try { const res = await axios.post('/api/payments/create-checkout-session', { items: [ { id: 'product_001', name: 'Flower', price: 2000, quantity: 1 }, // You can make this dynamic later ], }); window.location.href = res.data.url; } catch (error) { alert('Error creating checkout session'); console.error(error); } };
+
+return ( <div className="p-6 text-center"> <h2 className="text-2xl font-bold mb-4">Checkout</h2> <p className="mb-4">Proceed to pay for your selected cannabis product.</p> <button
+onClick={handleCheckout}
+className="bg-green-700 text-white px-4 py-2 rounded"
+> Proceed to Payment </button> </div> ); }
+
