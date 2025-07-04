@@ -21,3 +21,5 @@ return ( <form onSubmit={handleSubmit} className="p-4"> <h2 className="text-xl f
 // FILE: frontend/src/pages/VendorDashboard.tsx import React from 'react';
 
 export default function VendorDashboard() { return ( <div className="p-4"> <h1 className="text-2xl font-bold">Vendor Dashboard</h1> <p className="text-gray-600">Add/edit products (coming in next step)</p> </div> ); }
+const adminRoutes = require('./backend/routes/admin');
+app.use('/api/admin', adminRoutes);
