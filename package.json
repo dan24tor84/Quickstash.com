@@ -1,4 +1,11 @@
-"scripts": {
-  "start": "node server.js",
-  "build": "echo 'No build step needed for now'"
+{
+  "name": "quickstash",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js",
+    "build": "echo 'No build step needed for now'"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
