@@ -1,35 +1,26 @@
-// FILE: server.js
-
+// FILE: backend/server.js
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const path = require('path');
+require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const port = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Routes
-const vendorRoutes = require('./backend/routes/vendors');
-const courierRoutes = require('./backend/routes/couriers');
-const adminRoutes = require('./backend/routes/admin');
-const productRoutes = require('./backend/routes/products');
+// ROUTES
+app.use('/api/vendors', require('./routes/vendors'));
+app.use('/api/couriers', require('./routes/couriers'));
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/products', require('./routes/products')); // Cloudinary image upload
 
-app.use('/api/vendors', vendorRoutes);
-app.use('/api/couriers', courierRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/products', productRoutes);
-
-// Root health check
 app.get('/', (req, res) => {
-  res.send('QuickStash backend is live!');
+  res.send('QuickStash backend is running!');
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
