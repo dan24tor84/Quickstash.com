@@ -2,42 +2,85 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 export default function ProductUpload() {
-  const [form, setForm] = useState({
+  const [product, setProduct] = useState({
     name: '',
-    price: '',
-    vendorId: '',
-    image: null,
+    description: '',
+    image: null as File | null,
   });
+  const [uploading, setUploading] = useState(false);
 
-  const handleChange = (e: any) => {
-    const { name, value, files } = e.target;
-    if (name === 'image') {
-      setForm({ ...form, image: files[0] });
-    } else {
-      setForm({ ...form, [name]: value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setProduct((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProduct((prev) => ({ ...prev, image: file }));
     }
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const data = new FormData();
-    Object.entries(form).forEach(([key, value]) => data.append(key, value as any));
+    if (!product.image) return alert('Please upload an image');
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('name', product.name);
+    formData.append('description', product.description);
+    formData.append('image', product.image);
 
     try {
-      const res = await axios.post('/api/products/upload', data);
+      await axios.post('/api/products', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       alert('Product uploaded!');
+      setProduct({ name: '', description: '', image: null });
     } catch (err) {
+      console.error(err);
       alert('Upload failed');
+    } finally {
+      setUploading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 space-y-4">
-      <input name="vendorId" placeholder="Vendor ID" onChange={handleChange} className="border p-2 w-full" />
-      <input name="name" placeholder="Product Name" onChange={handleChange} className="border p-2 w-full" />
-      <input name="price" placeholder="Price" onChange={handleChange} className="border p-2 w-full" />
-      <input type="file" name="image" onChange={handleChange} className="border p-2 w-full" />
-      <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">Upload Product</button>
-    </form>
+    <div className="p-4 max-w-xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Upload New Product</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          name="name"
+          value={product.name}
+          onChange={handleChange}
+          placeholder="Product Name"
+          className="w-full border p-2"
+          required
+        />
+        <textarea
+          name="description"
+          value={product.description}
+          onChange={handleChange}
+          placeholder="Product Description"
+          className="w-full border p-2"
+          required
+        />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="w-full border p-2"
+          required
+        />
+        <button
+          type="submit"
+          disabled={uploading}
+          className="bg-green-700 text-white px-4 py-2 rounded"
+        >
+          {uploading ? 'Uploading...' : 'Upload Product'}
+        </button>
+      </form>
+    </div>
   );
 }
