@@ -1,26 +1,26 @@
-// FILE: backend/server.js
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-require('dotenv').config();
-
 const app = express();
-const port = process.env.PORT || 5000;
 
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
 
-// ROUTES
-app.use('/api/vendors', require('./routes/vendors'));
-app.use('/api/couriers', require('./routes/couriers'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/products', require('./routes/products')); // Cloudinary image upload
+// Route imports
+const vendorRoutes = require('./routes/vendors');
+const courierRoutes = require('./routes/couriers');
+const adminRoutes = require('./routes/admin');
+const productRoutes = require('./routes/products');
+const ordersRoutes = require('./routes/orders'); // ✅ new line
 
-app.get('/', (req, res) => {
-  res.send('QuickStash backend is running!');
-});
+// Route usage
+app.use('/api/vendors', vendorRoutes);
+app.use('/api/couriers', courierRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/orders', ordersRoutes); // ✅ new line
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
