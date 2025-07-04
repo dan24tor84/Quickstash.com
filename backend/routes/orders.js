@@ -1,52 +1,19 @@
-const express = require('express');
-const router = express.Router();
+// FILE: backend/routes/orders.js
 
-let orders = []; // Temporary in-memory storage
+const express = require('express'); const router = express.Router(); const { calculateDriverPayout } = require('../utils/courierPayouts');
 
-// Create a new order
-router.post('/create', (req, res) => {
-  const { customerName, address, items, vendorId } = req.body;
+// In-memory mock order list (replace with DB later) let orders = [];
 
-  if (!customerName || !address || !items || !vendorId) {
-    return res.status(400).json({ message: 'Missing required fields' });
-  }
+// Create order router.post('/create', (req, res) => { const { name, phone, address, product, quantity, deliveryTime } = req.body; const subtotal = calculateSubtotal(product, quantity); // Basic pricing logic const driverPayout = calculateDriverPayout(subtotal);
 
-  const newOrder = {
-    id: orders.length + 1,
-    customerName,
-    address,
-    items,
-    vendorId,
-    status: 'Pending',
-    createdAt: new Date(),
-  };
+const newOrder = { id: orders.length + 1, name, phone, address, product, quantity, deliveryTime, subtotal, driverPayout, status: 'pending', };
 
-  orders.push(newOrder);
-  res.status(201).json({ message: 'Order created successfully', order: newOrder });
-});
+orders.push(newOrder); res.status(201).json({ message: 'Order created', order: newOrder }); });
 
-// Get all orders
-router.get('/', (req, res) => {
-  res.json(orders);
-});
+// Get all orders router.get('/all', (req, res) => { res.json(orders); });
 
-// Get orders for a specific vendor
-router.get('/vendor/:vendorId', (req, res) => {
-  const vendorOrders = orders.filter(order => order.vendorId == req.params.vendorId);
-  res.json(vendorOrders);
-});
+// Update order status router.post('/update-status', (req, res) => { const { id, status } = req.body; const order = orders.find(o => o.id === id); if (order) { order.status = status; res.json({ message: 'Order status updated', order }); } else { res.status(404).json({ message: 'Order not found' }); } });
 
-// Update order status (e.g. Assigned, Out for Delivery, Delivered)
-router.put('/update/:orderId', (req, res) => {
-  const { status } = req.body;
-  const order = orders.find(o => o.id == req.params.orderId);
-
-  if (!order) {
-    return res.status(404).json({ message: 'Order not found' });
-  }
-
-  order.status = status || order.status;
-  res.json({ message: 'Order status updated', order });
-});
+// Simple pricing logic (could be replaced with dynamic data) function calculateSubtotal(product, quantity) { const prices = { 'Pre-Roll': 10, 'Edible': 15, 'Flower': 20, 'Vape': 25, }; return (prices[product] || 0) * quantity; }
 
 module.exports = router;
