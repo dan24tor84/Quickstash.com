@@ -1,31 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-export default function ProductMenu() {
-  const [products, setProducts] = useState([]);
+import AdminDashboard from './pages/AdminDashboard';
+import CourierDashboard from './pages/CourierDashboard';
+import ProductUpload from './pages/ProductUpload';
+import ProductMenu from './pages/ProductMenu';
 
-  useEffect(() => {
-    async function fetchProducts() {
-      const res = await axios.get('/api/products');
-      setProducts(res.data);
-    }
-    fetchProducts();
-  }, []);
-
+function Root() {
   return (
-    <div className="p-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-      {products.map((product: any) => (
-        <div key={product.id} className="border rounded shadow p-4">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-48 object-cover mb-2 rounded"
-          />
-          <h3 className="text-lg font-bold">{product.name}</h3>
-          <p className="text-sm text-gray-600">{product.category}</p>
-          <p className="text-green-700 font-semibold mt-1">${product.price}</p>
-        </div>
-      ))}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<ProductMenu />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/courier" element={<CourierDashboard />} />
+        <Route path="/upload" element={<ProductUpload />} />
+        <Route path="/menu" element={<ProductMenu />} />
+      </Routes>
+    </Router>
   );
 }
+
+export default Root;
