@@ -24,7 +24,7 @@ export default function CourierDashboard() {
   }, []);
 
   const updateStatus = async (deliveryId: number, newStatus: string) => {
-    await axios.post(`/api/admin/vendors/${id}/approve`);
+    await axios.post('/api/couriers/update-status', { deliveryId, newStatus });
     alert(`Delivery ${deliveryId} marked as ${newStatus}`);
   };
 
@@ -34,6 +34,7 @@ export default function CourierDashboard() {
       <p className="text-gray-700 mb-2">
         Current Location: {location.lat.toFixed(4)}, {location.lon.toFixed(4)}
       </p>
+
       <h3 className="text-xl font-semibold mt-6 mb-2">Assigned Deliveries</h3>
       {deliveries.length === 0 && <p>No deliveries assigned.</p>}
       <ul className="space-y-4">
