@@ -1,0 +1,38 @@
+// FILE: backend/routes/payments.js
+const express = require('express');
+const router = express.Router();
+const Stripe = require('stripe');
+
+// Use your secret key here OR load from environment variable
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_REPLACE_WITH_YOUR_SECRET_KEY');
+
+router.post('/create-checkout-session', async (req, res) => {
+  const { items, customer } = req.body;
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: items.map(item => ({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.name,
+          },
+          unit_amount: item.price * 100, // Stripe expects amounts in cents
+        },
+        quantity: item.quantity,
+      })),
+      mode: 'payment',
+      success_url: 'https://quickstash.com/success',
+      cancel_url: 'https://quickstash.com/cancel',
+      customer_email: customer.email,
+    });
+
+    res.json({ url: session.url });
+  } catch (err) {
+    console.error('Stripe session error:', err.message);
+    res.status(500).json({ error: 'Payment session creation failed' });
+  }
+});
+
+module.exports = router;
