@@ -1,59 +1,90 @@
-// FILE: frontend/src/pages/CourierDashboard.tsx
+// frontend/src/components/CourierDashboard.tsx
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-export default function CourierDashboard() {
-  const [location, setLocation] = useState({ lat: 0, lon: 0 });
-  const [status, setStatus] = useState('idle');
-  const [deliveries, setDeliveries] = useState([]);
+interface Delivery {
+  id: number;
+  address: string;
+  destination: { lat: number; lon: number };
+  status: string;
+}
+
+const CourierDashboard = () => {
+  const [deliveries, setDeliveries] = useState<Delivery[]>([]);
+  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.watchPosition((pos) => {
-        setLocation({ lat: pos.coords.latitude, lon: pos.coords.longitude });
-      });
-    }
-  }, []);
+    // Get courier's current location
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setLocation({ latitude, longitude });
+      },
+      (err) => console.error('Geolocation error:', err)
+    );
 
-  useEffect(() => {
-    async function fetchDeliveries() {
+    // Load deliveries
+    const fetchDeliveries = async () => {
       const res = await axios.get('/api/couriers/deliveries');
       setDeliveries(res.data);
-    }
+    };
     fetchDeliveries();
   }, []);
 
-  const updateStatus = async (deliveryId: number, newStatus: string) => {
-    await axios.post('/api/couriers/update-status', { deliveryId, newStatus });
-    alert(`Delivery ${deliveryId} marked as ${newStatus}`);
+  const updateStatus = async (id: number, newStatus: string) => {
+    await axios.put(`/api/couriers/update-status/${id}`, { status: newStatus });
+    setDeliveries((prev) =>
+      prev.map((d) => (d.id === id ? { ...d, status: newStatus } : d))
+    );
+  };
+
+  const optimizeRoute = async (destination: { latitude: number; longitude: number }) => {
+    try {
+      const res = await axios.post('/api/couriers/optimize-route', {
+        start: location,
+        destination,
+      });
+      const route = res.data.route;
+      console.log('Optimized Route:', route);
+      alert(`Optimized ETA: ${Math.round(route.duration / 60)} mins`);
+    } catch (err) {
+      console.error('Route optimization failed', err);
+      alert('Could not get route at this time');
+    }
   };
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Courier Dashboard</h2>
-      <p className="text-gray-700 mb-2">
-        Current Location: {location.lat.toFixed(4)}, {location.lon.toFixed(4)}
-      </p>
-
-      <h3 className="text-xl font-semibold mt-6 mb-2">Assigned Deliveries</h3>
-      {deliveries.length === 0 && <p>No deliveries assigned.</p>}
+      <h2 className="text-xl font-bold mb-4">Courier Dashboard</h2>
       <ul className="space-y-4">
-        {deliveries.map((delivery: any) => (
-          <li key={delivery.id} className="border p-4 rounded">
-            <p><strong>To:</strong> {delivery.address}</p>
-            <p><strong>ETA:</strong> {delivery.eta || 'Calculating...'}</p>
+        {deliveries.map((delivery) => (
+          <li key={delivery.id} className="p-4 border rounded shadow">
+            <p><strong>Address:</strong> {delivery.address}</p>
+            <p><strong>Status:</strong> {delivery.status}</p>
             <div className="mt-2 space-x-2">
               <button
-                onClick={() => updateStatus(delivery.id, 'en route')}
+                onClick={() => updateStatus(delivery.id, 'Picked Up')}
                 className="bg-yellow-500 text-white px-3 py-1 rounded"
               >
-                Mark En Route
+                Picked Up
               </button>
               <button
-                onClick={() => updateStatus(delivery.id, 'delivered')}
+                onClick={() => updateStatus(delivery.id, 'Delivered')}
                 className="bg-green-600 text-white px-3 py-1 rounded"
               >
-                Mark Delivered
+                Delivered
+              </button>
+              <button
+                onClick={() =>
+                  optimizeRoute({
+                    latitude: delivery.destination.lat,
+                    longitude: delivery.destination.lon,
+                  })
+                }
+                className="bg-blue-600 text-white px-3 py-1 rounded"
+              >
+                Get Route
               </button>
             </div>
           </li>
@@ -61,12 +92,6 @@ export default function CourierDashboard() {
       </ul>
     </div>
   );
-}
-const optimizeRoute = async (destination: { latitude: number; longitude: number }) => {
-  const res = await axios.post('/api/couriers/optimize-route', {
-    start: location,
-    destination
-  });
-  const optimizedRoute = res.data.route;
-  console.log('Optimized Route:', optimizedRoute);
 };
+
+export default CourierDashboard;
