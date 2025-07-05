@@ -62,3 +62,11 @@ export default function CourierDashboard() {
     </div>
   );
 }
+const optimizeRoute = async (destination: { latitude: number; longitude: number }) => {
+  const res = await axios.post('/api/couriers/optimize-route', {
+    start: location,
+    destination
+  });
+  const optimizedRoute = res.data.route;
+  console.log('Optimized Route:', optimizedRoute);
+};
