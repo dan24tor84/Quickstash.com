@@ -1,109 +1,38 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React from 'react';
+import { AppLauncher } from '@capacitor/app-launcher';
 
-export default function CustomerOrderForm() {
-  const [form, setForm] = useState({
-    name: '',
-    phone: '',
-    address: '',
-    product: '',
-    quantity: 1,
-    deliveryTime: '',
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const AppLauncherButton: React.FC = () => {
+  const openInstagram = async () => {
     try {
-      await axios.post('/api/orders/create', form);
-      alert('Order placed successfully!');
-      setForm({
-        name: '',
-        phone: '',
-        address: '',
-        product: '',
-        quantity: 1,
-        deliveryTime: '',
-      });
+      const canOpen = await AppLauncher.canOpenUrl({ url: 'com.instagram.android' });
+
+      if (canOpen.value) {
+        await AppLauncher.openUrl({ url: 'com.instagram.android' });
+      } else {
+        alert('Instagram is not installed.');
+      }
     } catch (error) {
-      alert('There was an error placing your order.');
+      console.error('Error launching app:', error);
+      alert('Something went wrong trying to open the app.');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-lg mx-auto bg-white shadow p-6 rounded">
-      <h2 className="text-2xl font-bold mb-4">Place Your Order</h2>
-
-      <input
-        name="name"
-        placeholder="Full Name"
-        value={form.name}
-        onChange={handleChange}
-        required
-        className="border p-2 mb-4 w-full"
-      />
-
-      <input
-        name="phone"
-        type="tel"
-        placeholder="Phone Number"
-        value={form.phone}
-        onChange={handleChange}
-        required
-        className="border p-2 mb-4 w-full"
-      />
-
-      <input
-        name="address"
-        placeholder="Delivery Address"
-        value={form.address}
-        onChange={handleChange}
-        required
-        className="border p-2 mb-4 w-full"
-      />
-
-      <select
-        name="product"
-        value={form.product}
-        onChange={handleChange}
-        required
-        className="border p-2 mb-4 w-full"
-      >
-        <option value="">Select a Product</option>
-        <option value="Pre-Roll">Pre-Roll</option>
-        <option value="Edible">Edible</option>
-        <option value="Flower">Flower</option>
-        <option value="Vape">Vape</option>
-        {/* You can later replace this with a dynamic product list */}
-      </select>
-
-      <input
-        name="quantity"
-        type="number"
-        min={1}
-        value={form.quantity}
-        onChange={handleChange}
-        required
-        className="border p-2 mb-4 w-full"
-      />
-
-      <input
-        name="deliveryTime"
-        type="datetime-local"
-        value={form.deliveryTime}
-        onChange={handleChange}
-        className="border p-2 mb-4 w-full"
-      />
-
-      <button
-        type="submit"
-        className="bg-green-600 text-white p-2 rounded w-full hover:bg-green-700 transition"
-      >
-        Submit Order
-      </button>
-    </form>
+    <button
+      onClick={openInstagram}
+      style={{
+        padding: '10px 20px',
+        borderRadius: '8px',
+        backgroundColor: '#405DE6',
+        color: '#fff',
+        border: 'none',
+        fontSize: '16px',
+        cursor: 'pointer',
+      }}
+    >
+      Open Instagram
+    </button>
   );
-}
+};
+
+export default AppLauncherButton;
