@@ -1,41 +1,29 @@
-const express = require('express');
-const cors = require('cors');
-const app = express();
-const path = require('path');
+const express = require('express'); const axios = require('axios'); const cors = require('cors'); const app = express();
 
-// Stripe webhook requires raw body
-const bodyParser = require('body-parser');
+require('dotenv').config();
 
-// Routes
-const vendorRoutes = require('./routes/vendors');
-const courierRoutes = require('./routes/couriers');
-const adminRoutes = require('./routes/admin');
-const productRoutes = require('./routes/products');
-const ordersRoutes = require('./routes/orders');
-const stripeWebhook = require('./routes/stripeWebhook');
+app.use(cors()); app.use(express.json());
 
-// Stripe webhook must come BEFORE express.json
-app.use('/api/stripe/webhook', bodyParser.raw({ type: 'application/json' }), stripeWebhook);
+// POST /api/couriers/optimize-route app.post('/api/couriers/optimize-route', async (req, res) => { const { start, destination } = req.body;
 
-// Now regular middlewares
-app.use(cors());
-app.use(express.json());
+if (!start || !destination) { return res.status(400).json({ error: 'Missing start or destination coordinates' }); }
 
-// Other API routes
-app.use('/api/vendors', vendorRoutes);
-app.use('/api/couriers', courierRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/orders', ordersRoutes);
+try { const MAPBOX_TOKEN = process.env.MAPBOX_ACCESS_TOKEN;
 
-// Serve frontend (optional for Netlify fallback)
-app.use(express.static(path.join(__dirname, '../frontend/build')));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
-});
+const response = await axios.get(
+  `https://api.mapbox.com/directions/v5/mapbox/driving/${start.longitude},${start.latitude};${destination.longitude},${destination.latitude}`,
+  {
+    params: {
+      access_token: MAPBOX_TOKEN,
+      geometries: 'geojson',
+      overview: 'full',
+    },
+  }
+);
 
-// Server start
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+const route = response.data.routes[0];
+res.json({ route });
+
+} catch (error) { console.error('Mapbox route error:', error.message); res.status(500).json({ error: 'Failed to fetch optimized route' }); } });
+
+// Start server const PORT = process.env.PORT || 5000; app.listen(PORT, () => console.log(Server running on port ${PORT}));
