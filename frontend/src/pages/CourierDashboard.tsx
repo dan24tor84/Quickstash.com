@@ -95,3 +95,14 @@ const CourierDashboard = () => {
 };
 
 export default CourierDashboard;
+<button
+  onClick={() =>
+    optimizeRoute({
+      latitude: delivery.destination.lat,
+      longitude: delivery.destination.lon,
+    })
+  }
+  className="bg-blue-600 text-white px-3 py-1 rounded"
+>
+  Get Route
+</button>
