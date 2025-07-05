@@ -1,3 +1,4 @@
+// FILE: backend/routes/route.js
 const express = require('express');
 const axios = require('axios');
 const router = express.Router();
@@ -11,7 +12,7 @@ router.post('/', async (req, res) => {
     const orsRes = await axios.post(
       'https://api.openrouteservice.org/v2/directions/driving-car/geojson',
       {
-        coordinates: coordinates.map((c) => [c.lon, c.lat]) // [lon, lat] format
+        coordinates: coordinates.map((c) => [c.lon, c.lat])
       },
       {
         headers: {
@@ -21,10 +22,17 @@ router.post('/', async (req, res) => {
       }
     );
 
-    res.json(orsRes.data);
+    const route = orsRes.data;
+    const summary = route.features[0].properties.summary;
+
+    res.json({
+      route,
+      etaMinutes: Math.round(summary.duration / 60), // Convert seconds to minutes
+      distanceKm: (summary.distance / 1000).toFixed(2) // Convert meters to km
+    });
   } catch (error) {
-    console.error('Route optimization error:', error.message);
-    res.status(500).json({ error: 'Failed to generate route' });
+    console.error('Route or ETA error:', error.message);
+    res.status(500).json({ error: 'Failed to generate route or ETA' });
   }
 });
 
