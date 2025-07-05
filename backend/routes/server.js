@@ -28,3 +28,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+const adminPayoutRoutes = require('./routes/adminPayouts');
+app.use('/api/admin/payouts', adminPayoutRoutes);
