@@ -1,3 +1,7 @@
+import { MapContainer, TileLayer, Polyline } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { useState } from 'react';
 // frontend/src/components/CourierDashboard.tsx
 
 import React, { useEffect, useState } from 'react';
