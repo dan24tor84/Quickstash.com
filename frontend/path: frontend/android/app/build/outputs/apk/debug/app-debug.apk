@@ -1,36 +1,44 @@
-name: Build Android APK
+name: Build Android AAB
 
-on: push: branches: - main
+on:
+  push:
+    branches:
+      - main
 
-jobs: build: runs-on: ubuntu-latest defaults: run: working-directory: frontend
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
 
-steps:
-  - name: Checkout code
-    uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-  - name: Set up Node.js
-    uses: actions/setup-node@v3
-    with:
-      node-version: 18
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-  - name: Install dependencies
-    run: npm install
+      - name: Install dependencies
+        run: npm install
 
-  - name: Build web app
-    run: npm run build
+      - name: Build web app
+        run: npm run build
 
-  - name: Install Capacitor + Android
-    run: |
-      npm install @capacitor/core @capacitor/cli
-      npx cap sync android
+      - name: Install Capacitor + Android
+        run: |
+          npm install @capacitor/core @capacitor/cli
+          npx cap sync android
 
-  - name: Build Android APK
-    run: |
-      cd android
-      ./gradlew assembleDebug
+      - name: Build AAB bundle
+        run: |
+          cd android
+          ./gradlew bundleRelease
 
-  - name: Upload APK artifact
-    uses: actions/upload-artifact@v4
-    with:
-      name: quickstash-apk
-      path: android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quickstash-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
