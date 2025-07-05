@@ -1,0 +1,21 @@
+// FILE: backend/routes/adminAnalytics.js
+
+const express = require('express'); const router = express.Router();
+
+// Mock data sources (replace with real DB queries) const orders = require('../data/orders'); const couriers = require('../data/couriers');
+
+// Utility function for revenue aggregation const calculateRevenue = (orders) => { const total = orders.reduce((sum, order) => sum + order.total, 0); const avgOrderValue = orders.length ? total / orders.length : 0; return { total, avgOrderValue }; };
+
+// Utility function for driver performance const getCourierStats = (orders) => { const stats = {}; for (let order of orders) { const courierId = order.courierId; if (!stats[courierId]) { stats[courierId] = { deliveries: 0, totalTime: 0 }; } stats[courierId].deliveries++; stats[courierId].totalTime += order.deliveryTime || 30; // assume 30 min avg }
+
+return Object.entries(stats).map(([courierId, data]) => { const courier = couriers.find(c => c.id === parseInt(courierId)); return { id: courierId, name: courier?.name || 'Unknown', deliveries: data.deliveries, avgTime: Math.round(data.totalTime / data.deliveries) }; }); };
+
+router.get('/summary', (req, res) => { const revenue = calculateRevenue(orders); const courierStats = getCourierStats(orders);
+
+const popularProducts = {}; for (let order of orders) { const product = order.product; popularProducts[product] = (popularProducts[product] || 0) + order.quantity; }
+
+const popularList = Object.entries(popularProducts).map(([product, qty]) => ({ product, qty })); popularList.sort((a, b) => b.qty - a.qty);
+
+res.json({ totalOrders: orders.length, revenue, popularProducts: popularList, courierStats }); });
+
+module.exports = router;
