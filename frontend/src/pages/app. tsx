@@ -1,38 +1,24 @@
+// FILE: frontend/src/App.tsx
 import React from 'react';
-import { AppLauncher } from '@capacitor/app-launcher';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import VendorDashboard from './pages/VendorDashboard';
+import CourierDashboard from './pages/CourierDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminPayoutDashboard from './pages/AdminPayoutDashboard'; // ✅ NEW IMPORT
 
-const AppLauncherButton: React.FC = () => {
-  const openInstagram = async () => {
-    try {
-      const canOpen = await AppLauncher.canOpenUrl({ url: 'com.instagram.android' });
-
-      if (canOpen.value) {
-        await AppLauncher.openUrl({ url: 'com.instagram.android' });
-      } else {
-        alert('Instagram is not installed.');
-      }
-    } catch (error) {
-      console.error('Error launching app:', error);
-      alert('Something went wrong trying to open the app.');
-    }
-  };
-
+function App() {
   return (
-    <button
-      onClick={openInstagram}
-      style={{
-        padding: '10px 20px',
-        borderRadius: '8px',
-        backgroundColor: '#405DE6',
-        color: '#fff',
-        border: 'none',
-        fontSize: '16px',
-        cursor: 'pointer',
-      }}
-    >
-      Open Instagram
-    </button>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/vendor/dashboard" element={<VendorDashboard />} />
+        <Route path="/courier/dashboard" element={<CourierDashboard />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/payouts" element={<AdminPayoutDashboard />} /> {/* ✅ NEW ROUTE */}
+      </Routes>
+    </BrowserRouter>
   );
-};
+}
 
-export default AppLauncherButton;
+export default App;
