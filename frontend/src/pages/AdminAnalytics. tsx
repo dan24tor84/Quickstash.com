@@ -1,21 +1,34 @@
-// FILE: backend/routes/adminAnalytics.js
+// FILE: frontend/src/pages/AdminAnalyticsDashboard.tsx
 
-const express = require('express'); const router = express.Router();
+import React, { useEffect, useState } from 'react'; import axios from 'axios';
 
-// Mock data sources (replace with real DB queries) const orders = require('../data/orders'); const couriers = require('../data/couriers');
+export default function AdminAnalyticsDashboard() { const [stats, setStats] = useState({ totalOrders: 0, totalRevenue: 0, averageDeliveryTime: 0, topCourier: '', });
 
-// Utility function for revenue aggregation const calculateRevenue = (orders) => { const total = orders.reduce((sum, order) => sum + order.total, 0); const avgOrderValue = orders.length ? total / orders.length : 0; return { total, avgOrderValue }; };
+useEffect(() => { const fetchAnalytics = async () => { try { const res = await axios.get('/api/admin/analytics'); setStats(res.data); } catch (err) { console.error('Failed to fetch analytics:', err); } }; fetchAnalytics(); }, []);
 
-// Utility function for driver performance const getCourierStats = (orders) => { const stats = {}; for (let order of orders) { const courierId = order.courierId; if (!stats[courierId]) { stats[courierId] = { deliveries: 0, totalTime: 0 }; } stats[courierId].deliveries++; stats[courierId].totalTime += order.deliveryTime || 30; // assume 30 min avg }
+return ( <div className="p-6 max-w-3xl mx-auto"> <h1 className="text-3xl font-bold mb-6">Admin Analytics Dashboard</h1>
 
-return Object.entries(stats).map(([courierId, data]) => { const courier = couriers.find(c => c.id === parseInt(courierId)); return { id: courierId, name: courier?.name || 'Unknown', deliveries: data.deliveries, avgTime: Math.round(data.totalTime / data.deliveries) }; }); };
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="bg-white p-4 rounded shadow">
+      <h2 className="text-xl font-semibold">Total Orders</h2>
+      <p className="text-2xl text-green-700 mt-2">{stats.totalOrders}</p>
+    </div>
 
-router.get('/summary', (req, res) => { const revenue = calculateRevenue(orders); const courierStats = getCourierStats(orders);
+    <div className="bg-white p-4 rounded shadow">
+      <h2 className="text-xl font-semibold">Total Revenue</h2>
+      <p className="text-2xl text-green-700 mt-2">${stats.totalRevenue.toFixed(2)}</p>
+    </div>
 
-const popularProducts = {}; for (let order of orders) { const product = order.product; popularProducts[product] = (popularProducts[product] || 0) + order.quantity; }
+    <div className="bg-white p-4 rounded shadow">
+      <h2 className="text-xl font-semibold">Avg. Delivery Time</h2>
+      <p className="text-2xl text-green-700 mt-2">{stats.averageDeliveryTime} mins</p>
+    </div>
 
-const popularList = Object.entries(popularProducts).map(([product, qty]) => ({ product, qty })); popularList.sort((a, b) => b.qty - a.qty);
+    <div className="bg-white p-4 rounded shadow">
+      <h2 className="text-xl font-semibold">Top Courier</h2>
+      <p className="text-2xl text-green-700 mt-2">{stats.topCourier || 'N/A'}</p>
+    </div>
+  </div>
+</div>
 
-res.json({ totalOrders: orders.length, revenue, popularProducts: popularList, courierStats }); });
-
-module.exports = router;
+); }
