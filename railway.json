@@ -1,0 +1,17 @@
+{
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "npm install && npm run build",
+    "startCommand": "npm start"
+  },
+  "deploy": {
+    "restartPolicy": "ON_FAILURE",
+    "restartLimit": 5,
+    "healthcheckPath": "/",
+    "teardown": true
+  },
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": "8080"
+  }
+}
