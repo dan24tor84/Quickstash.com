@@ -1,4 +1,4 @@
-name: Build Android AAB
+name: Build Android App Bundle
 
 on:
   push:
@@ -8,12 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Node.js
@@ -21,24 +18,34 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install frontend dependencies
+        run: npm install --prefix frontend
 
-      - name: Build web app
-        run: npm run build
+      - name: Build frontend
+        run: npm run build --prefix frontend
 
-      - name: Install Capacitor + Android
+      # Optional: Only if you're using Capacitor for mobile app bundling
+      - name: Install Capacitor CLI
+        run: npm install -g @capacitor/cli
+
+      - name: Copy frontend build to Android app
         run: |
-          npm install @capacitor/core @capacitor/cli
-          npx cap sync android
+          npx cap copy android
 
-      - name: Build AAB bundle
-        run: |
-          cd android
-          ./gradlew bundleRelease
-
-      - name: Upload AAB artifact
-        uses: actions/upload-artifact@v4
+      - name: Set up Java
+        uses: actions/setup-java@v3
         with:
-          name: quickstash-aab
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Make Gradle executable
+        run: chmod +x android/gradlew
+
+      - name: Build AAB
+        run: ./android/gradlew bundleRelease
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release.aab
           path: android/app/build/outputs/bundle/release/app-release.aab
