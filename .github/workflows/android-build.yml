@@ -25,15 +25,18 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
+      - name: Install npm dependencies
         run: |
           cd frontend
           npm install
 
-      - name: Build app
+      - name: Build frontend
         run: |
           cd frontend
           npm run build
+
+      - name: Make gradlew executable
+        run: chmod +x frontend/android/gradlew
 
       - name: Build Android AAB
         run: |
