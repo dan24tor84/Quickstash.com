@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node backend/server.js",
-    "build": "cd frontend && npm install && npm run build"
+    "build": "cd frontend && npm install && npm run build",
+    "heroku-postbuild": "npm run build"
   },
   "dependencies": {
     "express": "^4.18.2"
