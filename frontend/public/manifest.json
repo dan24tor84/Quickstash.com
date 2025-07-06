@@ -1,20 +1,15 @@
 {
   "short_name": "QuickStash",
-  "name": "QuickStash - Cannabis Delivery",
+  "name": "QuickStash Cannabis Delivery",
   "icons": [
     {
-      "src": "icon-192x192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "icon-512x512.png",
+      "src": "/QuickStash_Logo_Converted.png",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#16a34a",
+  "theme_color": "#0f0f0f",
   "background_color": "#ffffff"
 }
