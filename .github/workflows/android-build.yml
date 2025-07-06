@@ -45,5 +45,21 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17
+          distribution: temurin
+          java-version: '17'
+
+      - name: Grant execute permission to Gradlew
+        run: chmod +x android/gradlew
+        working-directory: frontend
+
+      - name: Build AAB (bundleRelease)
+        run: |
+          cd android
+          ./gradlew bundleRelease --no-daemon --stacktrace --info
+        working-directory: frontend
+
+      - name: Upload AAB Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: quickstash-release-aab
+          path: frontend/android/app/build/outputs/bundle/release/app-release.aab
