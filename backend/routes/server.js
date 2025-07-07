@@ -1,10 +1,22 @@
 const express = require('express');
 const cors = require('cors');
+const dotenv = require('dotenv');
+const bodyParser = require('body-parser');
 const app = express();
 
-// Middleware
+// Load environment variables
+dotenv.config();
+
+// Use JSON parser for all routes except Stripe webhook
+app.use((req, res, next) => {
+  if (req.originalUrl === '/api/webhook') {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
+
 app.use(cors());
-app.use(express.json());
 
 // Route imports
 const vendors = require('./vendors');
@@ -22,7 +34,10 @@ const adminAnalytics = require('./adminAnalytics');
 const adminCourierLocations = require('./adminCourierLocations');
 const route = require('./route');
 
-// Route mounting
+// Stripe webhook (requires raw body)
+app.use('/api/webhook', bodyParser.raw({ type: 'application/json' }), stripeWebhook);
+
+// All other routes
 app.use('/api/vendors', vendors);
 app.use('/api/couriers', couriers);
 app.use('/api/orders', orders);
@@ -30,7 +45,6 @@ app.use('/api/products', products);
 app.use('/api/payouts', payouts);
 app.use('/api/payments', payments);
 app.use('/api/analytics', analytics);
-app.use('/api/webhook', stripeWebhook); // Stripe webhooks
 app.use('/api/admin', admin);
 app.use('/api/admin/orders', adminOrders);
 app.use('/api/admin/payouts', adminPayouts);
@@ -43,7 +57,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Root info route
+// Root API info
 app.get('/', (req, res) => {
   res.json({
     service: 'QuickStash Backend API',
@@ -71,5 +85,5 @@ app.get('/', (req, res) => {
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`✅ QuickStash backend running on port ${PORT}`);
+  console.log(`QuickStash backend running on port ${PORT}`);
 });
