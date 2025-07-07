@@ -5,5 +5,5 @@ export const isNative = () => Capacitor.isNativePlatform();
 
 export const initializeCapacitor = () => {
   console.log('Capacitor initialized on native device.');
-  // You can add splash screen, status bar, push notifications, etc. here later
+  // Mobile-specific features like splash screen or push setup can go here
 };
