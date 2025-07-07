@@ -1,15 +1,11 @@
-{
-  "short_name": "QuickStash",
-  "name": "QuickStash Cannabis Delivery",
-  "icons": [
-    {
-      "src": "/QuickStash_Logo_Converted.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#0f0f0f",
-  "background_color": "#ffffff"
-}
+// capacitor.config.ts
+import { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.quickstash.app',
+  appName: 'QuickStash',
+  webDir: 'frontend/build',
+  bundledWebRuntime: false
+};
+
+export default config;
