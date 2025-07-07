@@ -1,48 +1,51 @@
-name: Build and Upload APK
+name: Build Android App Bundle
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build-apk:
+  build:
+    name: Build Android App Bundle with Capacitor
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+      - name: Install frontend dependencies
+        run: npm install
+        working-directory: ./frontend
 
-      - name: Install dependencies
-        run: |
-          cd frontend
-          npm ci
-          npm run build
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./frontend
 
-      - name: Install Capacitor + Android
-        run: |
-          cd frontend
-          npm install @capacitor/core @capacitor/cli
-          npx cap sync android
+      - name: Sync Capacitor
+        run: npx cap sync android
+        working-directory: ./frontend
 
-      - name: Build APK
-        run: |
-          cd frontend/android
-          ./gradlew assembleDebug
+      - name: Copy web assets to Android
+        run: npx cap copy android
+        working-directory: ./frontend
 
-      - name: Upload APK Artifact
+      - name: Build Android AAB
+        run: ./gradlew bundleRelease
+        working-directory: android
+
+      - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         with:
-          name: quickstash-apk
-          path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+          name: app-release.aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
