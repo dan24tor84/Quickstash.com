@@ -1,0 +1,50 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const Dashboard: React.FC = () => {
+  return (
+    <div style={styles.container}>
+      <h2 style={styles.heading}>Vendor Dashboard</h2>
+      <p style={styles.paragraph}>Manage your cannabis products, orders, and deliveries.</p>
+
+      <div style={styles.buttonGroup}>
+        <Link to="/add-product" style={styles.button}>Add Product</Link>
+        <Link to="/orders" style={styles.button}>View Orders</Link>
+        <Link to="/profile" style={styles.button}>Edit Profile</Link>
+      </div>
+    </div>
+  );
+};
+
+const styles = {
+  container: {
+    textAlign: 'center' as const,
+    padding: '3rem 1rem',
+  },
+  heading: {
+    fontSize: '2.5rem',
+    marginBottom: '1rem',
+  },
+  paragraph: {
+    fontSize: '1.25rem',
+    marginBottom: '2rem',
+  },
+  buttonGroup: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    gap: '1rem',
+  },
+  button: {
+    backgroundColor: '#065f46',
+    color: '#fff',
+    padding: '0.75rem 1.5rem',
+    textDecoration: 'none',
+    borderRadius: '8px',
+    fontWeight: 'bold' as const,
+    width: '200px',
+    textAlign: 'center' as const,
+  },
+};
+
+export default Dashboard;
