@@ -1,37 +1,52 @@
 name: Build Android App Bundle
 
-on: push: branches: - main pull_request: branches: - main
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
-jobs: build: name: Build Android App Bundle with Capacitor runs-on: ubuntu-latest
+jobs:
+  build:
+    name: Build Android App Bundle with Capacitor
+    runs-on: ubuntu-latest
 
-steps:
-  - name: Checkout code
-    uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
 
-  - name: Set up Node.js
-    uses: actions/setup-node@v3
-    with:
-      node-version: 18
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-  - name: Install dependencies
-    run: npm install --legacy-peer-deps
+      - name: Install dependencies (root)
+        run: npm ci
 
-  - name: Build frontend
-    run: npm run build --prefix frontend
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: ./frontend
 
-  - name: Sync Capacitor
-    run: npx cap sync android
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./frontend
 
-  - name: Copy web assets to Android
-    run: npx cap copy android
+      - name: Sync Capacitor
+        run: npx cap sync android
 
-  - name: Build Android AAB
-    run: |
-      cd android
-      ./gradlew bundleRelease
+      - name: Copy web assets to Android
+        run: npx cap copy android
 
-  - name: Upload AAB artifact
-    uses: actions/upload-artifact@v3
-    with:
-      name: app-release.aab
-      path: android/app/build/outputs/bundle/release/app-release.aab
+      - name: Build Android AAB
+        run: ./gradlew bundleRelease
+        working-directory: android
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release.aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
