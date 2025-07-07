@@ -1,89 +1,51 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const bodyParser = require('body-parser');
-const app = express();
+const path = require('path');
 
-// Load environment variables
 dotenv.config();
 
-// Use JSON parser for all routes except Stripe webhook
-app.use((req, res, next) => {
-  if (req.originalUrl === '/api/webhook') {
-    next();
-  } else {
-    express.json()(req, res, next);
-  }
-});
+const app = express();
+const PORT = process.env.PORT || 5000;
 
+// Middleware
 app.use(cors());
+app.use(express.json());
 
-// Route imports
-const vendors = require('./vendors');
-const couriers = require('./couriers');
-const orders = require('./orders');
-const products = require('./products');
-const payouts = require('./payouts');
-const payments = require('./payments');
-const analytics = require('./analytics');
-const stripeWebhook = require('./stripeWebhook');
-const admin = require('./admin');
-const adminOrders = require('./adminOrders');
-const adminPayouts = require('./adminPayouts');
-const adminAnalytics = require('./adminAnalytics');
-const adminCourierLocations = require('./adminCourierLocations');
-const route = require('./route');
+// Routes
+const authRoutes = require('./routes/auth/login');
+const registerRoutes = require('./routes/auth/register');
+const vendorRoutes = require('./routes/vendors');
+const productRoutes = require('./routes/products');
+const paymentRoutes = require('./routes/payments');
+const payoutRoutes = require('./routes/payouts');
+const orderRoutes = require('./routes/orders');
+const courierRoutes = require('./routes/couriers');
+const analyticsRoutes = require('./routes/analytics');
+const adminRoutes = require('./routes/admin');
+const stripeWebhook = require('./routes/stripeWebhook');
 
-// Stripe webhook (requires raw body)
-app.use('/api/webhook', bodyParser.raw({ type: 'application/json' }), stripeWebhook);
+// Webhook (Stripe) must come before express.json()
+app.use('/api/webhook', stripeWebhook);
 
-// All other routes
-app.use('/api/vendors', vendors);
-app.use('/api/couriers', couriers);
-app.use('/api/orders', orders);
-app.use('/api/products', products);
-app.use('/api/payouts', payouts);
-app.use('/api/payments', payments);
-app.use('/api/analytics', analytics);
-app.use('/api/admin', admin);
-app.use('/api/admin/orders', adminOrders);
-app.use('/api/admin/payouts', adminPayouts);
-app.use('/api/admin/analytics', adminAnalytics);
-app.use('/api/admin/courier-locations', adminCourierLocations);
-app.use('/api/route', route);
+// API Routes
+app.use('/api/auth/login', authRoutes);
+app.use('/api/auth/register', registerRoutes);
+app.use('/api/vendors', vendorRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/payouts', payoutRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/couriers', courierRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin', adminRoutes);
 
-// Health check
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-// Root API info
-app.get('/', (req, res) => {
-  res.json({
-    service: 'QuickStash Backend API',
-    status: 'running',
-    routes: [
-      '/health',
-      '/api/vendors',
-      '/api/couriers',
-      '/api/orders',
-      '/api/products',
-      '/api/payouts',
-      '/api/payments',
-      '/api/analytics',
-      '/api/webhook',
-      '/api/admin',
-      '/api/admin/orders',
-      '/api/admin/payouts',
-      '/api/admin/analytics',
-      '/api/admin/courier-locations',
-      '/api/route'
-    ]
-  });
+// Production build (optional: serves frontend build if needed)
+app.use(express.static(path.join(__dirname, '../frontend/public')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`QuickStash backend running on port ${PORT}`);
-});
+  console.log(`
