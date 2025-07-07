@@ -1,39 +1,75 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
-
-const vendorRoutes = require('./routes/vendors');
-const courierRoutes = require('./routes/couriers');
-const adminRoutes = require('./routes/admin');
-const productRoutes = require('./routes/products');
-const ordersRoutes = require('./routes/orders');
-const payoutRoutes = require('./routes/payouts'); // optional if you're using payouts
-
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ MongoDB connected'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+// Route imports
+const vendors = require('./vendors');
+const couriers = require('./couriers');
+const orders = require('./orders');
+const products = require('./products');
+const payouts = require('./payouts');
+const payments = require('./payments');
+const analytics = require('./analytics');
+const stripeWebhook = require('./stripeWebhook');
+const admin = require('./admin');
+const adminOrders = require('./adminOrders');
+const adminPayouts = require('./adminPayouts');
+const adminAnalytics = require('./adminAnalytics');
+const adminCourierLocations = require('./adminCourierLocations');
+const route = require('./route');
 
-// Routes
-app.use('/api/vendors', vendorRoutes);
-app.use('/api/couriers', courierRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/orders', ordersRoutes);
-app.use('/api/payouts', payoutRoutes); // optional
+// Route mounting
+app.use('/api/vendors', vendors);
+app.use('/api/couriers', couriers);
+app.use('/api/orders', orders);
+app.use('/api/products', products);
+app.use('/api/payouts', payouts);
+app.use('/api/payments', payments);
+app.use('/api/analytics', analytics);
+app.use('/api/webhook', stripeWebhook); // Stripe webhooks
+app.use('/api/admin', admin);
+app.use('/api/admin/orders', adminOrders);
+app.use('/api/admin/payouts', adminPayouts);
+app.use('/api/admin/analytics', adminAnalytics);
+app.use('/api/admin/courier-locations', adminCourierLocations);
+app.use('/api/route', route);
+
+// Health check
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Root info route
+app.get('/', (req, res) => {
+  res.json({
+    service: 'QuickStash Backend API',
+    status: 'running',
+    routes: [
+      '/health',
+      '/api/vendors',
+      '/api/couriers',
+      '/api/orders',
+      '/api/products',
+      '/api/payouts',
+      '/api/payments',
+      '/api/analytics',
+      '/api/webhook',
+      '/api/admin',
+      '/api/admin/orders',
+      '/api/admin/payouts',
+      '/api/admin/analytics',
+      '/api/admin/courier-locations',
+      '/api/route'
+    ]
+  });
+});
 
 // Start server
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`✅ QuickStash backend running on port ${PORT}`);
 });
