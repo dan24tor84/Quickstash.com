@@ -1,0 +1,11 @@
+// capacitor.config.ts
+import { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.quickstash.app',
+  appName: 'QuickStash',
+  webDir: 'frontend/build',
+  bundledWebRuntime: false
+};
+
+export default config;
